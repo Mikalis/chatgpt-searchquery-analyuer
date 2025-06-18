@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Analyst</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+            width: 500px;
+            height: 650px;
+            max-height: 650px;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            color: #e8eaed;
+            overflow: hidden;
+        }
+        
+        .container {
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 20px 24px;
+            background: linear-gradient(90deg, #0f3460, #1a1a2e);
+            border-bottom: 1px solid #0f3460;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(79, 195, 247, 0.1), transparent 70%);
+            pointer-events: none;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .title-container {
+            flex-grow: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            color: #4fc3f7;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: rgba(232, 234, 237, 0.7);
+            margin-top: 2px;
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(79, 195, 247, 0.3) transparent;
+        }
+        
+        .main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .main-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .main-content::-webkit-scrollbar-thumb {
+            background: rgba(79, 195, 247, 0.3);
+            border-radius: 3px;
+        }
+        
+        /* Status indicator */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: rgba(79, 195, 247, 0.08);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #81c784;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+        
+        .status-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #e8eaed;
+        }
+        
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #29b6f6, #0288d1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(79, 195, 247, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(232, 234, 237, 0.1);
+            color: #e8eaed;
+            border: 1px solid rgba(232, 234, 237, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(232, 234, 237, 0.15);
+            border-color: rgba(232, 234, 237, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        /* Expandable sections */
+        .expandable-section {
+            margin-bottom: 20px;
+            background: rgba(26, 26, 46, 0.5);
+            border: 1px solid rgba(15, 52, 96, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .expandable-section:hover {
+            border-color: rgba(79, 195, 247, 0.4);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        
+        .section-header:hover {
+            background: rgba(79, 195, 247, 0.05);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #4fc3f7;
+        }
+        
+        .section-icon {
+            font-size: 16px;
+        }
+        
+        .expand-icon {
+            font-size: 14px;
+            color: rgba(232, 234, 237, 0.6);
+            transition: transform 0.3s ease;
+        }
+        
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .section-content.expanded {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(79, 195, 247, 0.3) transparent;
+        }
+        
+        .section-content.expanded::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .section-content.expanded::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .section-content.expanded::-webkit-scrollbar-thumb {
+            background: rgba(79, 195, 247, 0.3);
+            border-radius: 3px;
+        }
+        
+        .section-content.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+        
+        .section-inner {
+            padding: 0 20px 20px 20px;
+        }
+        
+        /* Tips content */
+        .tips-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .tips-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: rgba(79, 195, 247, 0.05);
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(232, 234, 237, 0.9);
+        }
+        
+        .tips-list li::before {
+            content: '💡';
+            font-size: 14px;
+            margin-top: 1px;
+        }
+        
+        /* Settings */
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(79, 195, 247, 0.05);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .setting-row:hover {
+            background: rgba(79, 195, 247, 0.08);
+        }
+        
+        .setting-label {
+            font-size: 14px;
+            color: #e8eaed;
+            font-weight: 500;
+        }
+        
+        .setting-description {
+            font-size: 12px;
+            color: rgba(232, 234, 237, 0.6);
+            margin-top: 2px;
+        }
+        
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(232, 234, 237, 0.3);
+            transition: all 0.3s ease;
+            border-radius: 24px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background: white;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            box-shadow: 0 2px 8px rgba(79, 195, 247, 0.4);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 16px 24px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(15, 52, 96, 0.3);
+            text-align: center;
+        }
+        
+        .version {
+            font-size: 11px;
+            color: rgba(232, 234, 237, 0.5);
+            margin-bottom: 8px;
+        }
+        
+        .developer-link {
+            color: #4fc3f7;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .developer-link:hover {
+            color: #29b6f6;
+            text-decoration: underline;
+        }
+        
+        /* Stats section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            padding: 16px;
+            background: rgba(79, 195, 247, 0.08);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            background: rgba(79, 195, 247, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4fc3f7;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(232, 234, 237, 0.7);
+            margin-top: 4px;
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .container {
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        /* Analysis Results Styles */
+        .results-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .result-item {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: rgba(79, 195, 247, 0.05);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #e8eaed;
+            transition: all 0.2s ease;
+        }
+        
+        .result-item:hover {
+            background: rgba(79, 195, 247, 0.08);
+        }
+        
+        .result-category {
+            font-weight: 600;
+            color: #4fc3f7;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .result-copy-btn {
+            background: rgba(79, 195, 247, 0.1);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 4px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 10px;
+            color: #4fc3f7;
+            margin-left: auto;
+            transition: all 0.2s ease;
+        }
+        
+        .result-copy-btn:hover {
+            background: rgba(79, 195, 247, 0.2);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: rgba(232, 234, 237, 0.6);
+            font-size: 13px;
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #81c784, #66bb6a);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 12px;
+            width: 100%;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(135deg, #66bb6a, #4caf50);
+            transform: translateY(-1px);
+        }
+        
+        /* Promotional banner */
+        .promo-banner {
+            margin: 20px 24px 16px 24px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(79, 195, 247, 0.1), rgba(79, 195, 247, 0.05));
+            border: 1px solid rgba(79, 195, 247, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .promo-banner:hover {
+            background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(79, 195, 247, 0.08));
+            transform: translateY(-1px);
+        }
+        
+        .promo-text {
+            font-size: 12px;
+            color: rgba(232, 234, 237, 0.8);
+            line-height: 1.4;
+            margin: 0;
+        }
+        
+        .promo-link {
+            color: #4fc3f7;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        
+        .promo-link:hover {
+            color: #29b6f6;
+            text-decoration: underline;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-height: 600px) {
+            .main-content {
+                padding: 16px;
+            }
+            
+            .header {
+                padding: 16px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="icons/icon48.png" alt="ChatGPT Analyst" class="logo">
+            <div class="title-container">
+                <h1 class="title">ChatGPT Analyst</h1>
+                <div class="subtitle">Advanced conversation analysis</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="status-indicator" id="status-indicator">
+                <div class="status-dot"></div>
+                <div class="status-text">Ready to analyze conversations</div>
+            </div>
+            
+            <!-- Stats-Boxen entfernt - Status-Text zeigt die Zahlen bereits an -->
+            
+            <div class="action-buttons">
+                <button id="analyze-btn" class="btn btn-primary">
+                    <span class="section-icon">🔍</span>
+                    Analyze Conversation
+                </button>
+                <button id="extract-btn" class="btn btn-secondary" style="display: none;">
+                    <span class="section-icon">📄</span>
+                    Try Page Extraction
+                </button>
+                <button id="clear-data-btn" class="btn btn-secondary">
+                    <span class="section-icon">🧹</span>
+                    Clear Old Data
+                </button>
+                <button id="new-conversation-btn" class="btn btn-secondary">
+                    <span class="section-icon">✨</span>
+                    Start New Conversation
+                </button>
+            </div>
+            
+            <!-- Analysis Results Section -->
+            <div class="expandable-section" id="results-section" style="display: none;">
+                <div class="section-header" id="results-header">
+                    <div class="section-title">
+                        <span class="section-icon">📊</span>
+                        Analysis Results
+                    </div>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="section-content expanded" id="results-content">
+                    <div class="section-inner" id="results-inner">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="expandable-section">
+                <div class="section-header" id="tips-header">
+                    <div class="section-title">
+                        <span class="section-icon">💡</span>
+                        Quick Tips
+                    </div>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="section-content" id="tips-content">
+                    <div class="section-inner">
+                        <ul class="tips-list">
+                            <li>Ask ChatGPT questions that require research or web searches</li>
+                            <li>Wait for ChatGPT to finish its complete response</li>
+                            <li>Click "Analyze Conversation" - plugin will auto-refresh if needed</li>
+                            <li>Use "Clear Old Data" to remove previous analysis and start fresh</li>
+                            <li>The plugin automatically refreshes the page for better data capture</li>
+                            <li>Use Ctrl+Shift+A on the page for a quick reminder</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="expandable-section">
+                <div class="section-header" id="settings-header">
+                    <div class="section-title">
+                        <span class="section-icon">⚙️</span>
+                        Settings
+                    </div>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="section-content" id="settings-content">
+                    <div class="section-inner">
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Show debug information</div>
+                                <div class="setting-description">Display technical details for troubleshooting</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="show-debug">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-label">Clear data on new conversation</div>
+                                <div class="setting-description">Automatically clear old analysis when switching conversations</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="clear-on-new" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Promotional Banner -->
+        <div class="promo-banner">
+            <p class="promo-text">
+                Want to be better visible in ChatGPT? Talk to our experts at 
+                <a href="https://www.unic.com" class="promo-link" target="_blank" rel="noopener">www.unic.com</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <div class="version">Version 1.0.0</div>
+            <a href="https://github.com" class="developer-link" target="_blank" rel="noopener">
+                Made with ❤️ for ChatGPT analysis
+            </a>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html> 
