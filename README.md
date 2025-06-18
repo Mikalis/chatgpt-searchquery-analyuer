@@ -20,7 +20,6 @@
 - **ChatGPT Updates**: May require updates if ChatGPT changes their API
 - **Development Extension**: This is a development tool, not for production use
 
-
 ## **What This Extension Does**
 
 Reveals ChatGPT's internal search queries and reasoning patterns in real-time. See exactly what AI searches for when answering questions giving you unprecedented SEO insights.
@@ -59,24 +58,6 @@ The extension monitors ChatGPT's API responses for:
    - ChatGPT's reasoning process
    - Planning and decision-making insights
 
-
-## 🔍 How It Works
-
-1. **Background Script** (`background.js`):
-   - Uses `chrome.webRequest` API to monitor network traffic
-   - Filters for ChatGPT conversation endpoints
-   - Coordinates with content script
-
-2. **Content Script** (`content.js`):
-   - Injected into ChatGPT pages
-   - Fetches and analyzes API responses
-   - Creates and manages overlay interface
-
-3. **Network Analysis**:
-   - Monitors POST requests to `/backend-api/conversation/`
-   - Re-fetches responses to parse JSON data
-   - Extracts search queries and thoughts from response structure
-
 ## 🐛 Troubleshooting
 
 ### Extension Not Working
@@ -98,4 +79,3 @@ The extension monitors ChatGPT's API responses for:
 - Check auto-show setting in popup
 - Use `Ctrl+Shift+S` to manually toggle
 - Verify extension permissions
-
